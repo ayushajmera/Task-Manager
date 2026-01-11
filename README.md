@@ -16,10 +16,6 @@ The task list automatically sorts itself to keep you focused:
 2.  **Low Confidence** (Postponed) tasks float up next, demanding attention.
 3.  Remaining tasks are sorted by Severity and Confidence.
 
-### 🤖 Auto-Rewrite (AI-like)
-- Vague tasks are automatically broken down.
-- *Example:* Typing "Build REST API" automatically converts to "Define 3 endpoints for REST API (15 min)".
-
 ### 📊 Severity Levels
 - Categorize tasks as **Low**, **Medium**, or **High**.
 - Visual color-coded badges for quick scanning.
