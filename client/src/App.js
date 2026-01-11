@@ -41,7 +41,10 @@ function App() {
     const fetchTasks = async () => {
       try {
         const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Failed to fetch');
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Server Error: ${response.status} ${response.statusText} - ${errorText}`);
+        }
         const data = await response.json();
         setTasks(sortTasks(data));
       } catch (err) {

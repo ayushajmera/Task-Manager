@@ -1,7 +1,5 @@
 console.log("Starting server...");
 const express = require('express');
-const path = require('path');
-const fs = require('fs');
 const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -103,17 +101,6 @@ app.delete('/api/tasks/:id', (req, res) => {
   tasks = tasks.filter(task => task.id !== id);
   res.json({ message: `Task ${id} deleted` });
 });
-
-// Serve static files from the React app
-const buildPath = path.join(__dirname, '../client/build');
-if (fs.existsSync(buildPath)) {
-  app.use(express.static(buildPath));
-
-  // The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(buildPath, 'index.html'));
-  });
-}
 
 // Start Server
 if (require.main === module) {
