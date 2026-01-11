@@ -1,6 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import './App.css'; // Assuming standard Create React App CSS
 
+const API_URL = '/api/tasks';
+
+// Helper: Sort by High Priority, then Postponed, then others
+const sortTasks = (data) => {
+  return data.sort((a, b) => {
+    const confA = a.confidence !== undefined ? a.confidence : 0;
+    const confB = b.confidence !== undefined ? b.confidence : 0;
+
+    // 1. High Priority First
+    const isHighA = a.severity === 'High';
+    const isHighB = b.severity === 'High';
+    if (isHighA !== isHighB) return isHighA ? -1 : 1;
+
+    // 2. Postponed (Confidence < 100) Next
+    const isPostponedA = confA < 100;
+    const isPostponedB = confB < 100;
+    if (isPostponedA !== isPostponedB) return isPostponedA ? -1 : 1;
+
+    // 3. Tie-breakers: Severity (Medium > Low), then Confidence
+    const severityWeight = { High: 3, Medium: 2, Low: 1 };
+    const sevA = severityWeight[a.severity] || 2;
+    const sevB = severityWeight[b.severity] || 2;
+    if (sevA !== sevB) return sevB - sevA;
+    
+    return confA - confB;
+  });
+};
+
 function App() {
   const [tasks, setTasks] = useState([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -8,51 +36,22 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_URL = '/api/tasks';
-
-  // Helper: Sort by High Priority, then Postponed, then others
-  const sortTasks = (data) => {
-    return data.sort((a, b) => {
-      const confA = a.confidence !== undefined ? a.confidence : 0;
-      const confB = b.confidence !== undefined ? b.confidence : 0;
-
-      // 1. High Priority First
-      const isHighA = a.severity === 'High';
-      const isHighB = b.severity === 'High';
-      if (isHighA !== isHighB) return isHighA ? -1 : 1;
-
-      // 2. Postponed (Confidence < 100) Next
-      const isPostponedA = confA < 100;
-      const isPostponedB = confB < 100;
-      if (isPostponedA !== isPostponedB) return isPostponedA ? -1 : 1;
-
-      // 3. Tie-breakers: Severity (Medium > Low), then Confidence
-      const severityWeight = { High: 3, Medium: 2, Low: 1 };
-      const sevA = severityWeight[a.severity] || 2;
-      const sevB = severityWeight[b.severity] || 2;
-      if (sevA !== sevB) return sevB - sevA;
-      
-      return confA - confB;
-    });
-  };
-
   // 1. Fetch data on component mount
   useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
+        setTasks(sortTasks(data));
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchTasks();
   }, []);
-
-  const fetchTasks = async () => {
-    try {
-      const response = await fetch(API_URL);
-      if (!response.ok) throw new Error('Failed to fetch');
-      const data = await response.json();
-      setTasks(sortTasks(data));
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // 2. Handle Form Submission (POST request)
   const handleAddTask = async (e) => {
