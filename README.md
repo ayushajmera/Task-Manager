@@ -2,6 +2,8 @@
 
 A smart task management application built with React and Node.js that helps you track not just what needs to be done, but how confident you are about doing it.
 
+**🔗 Live Demo:** [https://ayush-task-manager.vercel.app/](https://ayush-task-manager.vercel.app/)
+
 ## 🚀 Advanced Features
 
 ### 🧠 Task Confidence Meter
